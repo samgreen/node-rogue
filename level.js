@@ -25,7 +25,11 @@ Level = (function() {
     this.map = {};
     for (y = _i = 0, _ref = this.sizeY; 0 <= _ref ? _i < _ref : _i > _ref; y = 0 <= _ref ? ++_i : --_i) {
       for (x = _j = 0, _ref1 = this.sizeX; 0 <= _ref1 ? _j < _ref1 : _j > _ref1; x = 0 <= _ref1 ? ++_j : --_j) {
-        this.setTile(x, y, TILE_TYPE.INVALID);
+        if (x === 0 || x === this.sizeX - 1 || y === 0 || y === this.sizeY - 1) {
+          this.setTile(x, y, TILE_TYPE.WALL);
+        } else {
+          this.setTile(x, y, TILE_TYPE.INVALID);
+        }
       }
     }
     return this.generateRooms();

@@ -19,7 +19,11 @@ class Level
 		@map = {}
 		for y in [0...@sizeY]
 			for x in [0...@sizeX]
-				@setTile x, y, TILE_TYPE.INVALID
+				# Enclose the edges of the dungeon
+				if x == 0 or x == @sizeX - 1 or y == 0 or y == @sizeY - 1
+					@setTile x, y, TILE_TYPE.WALL
+				else
+					@setTile x, y, TILE_TYPE.INVALID
 
 		# Generate all rooms
 		@generateRooms()

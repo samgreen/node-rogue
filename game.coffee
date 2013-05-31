@@ -1,4 +1,4 @@
-Level = require './level'
+Level = require './levels/level'
 Hero = require './units/hero'
 
 DEBUG = true

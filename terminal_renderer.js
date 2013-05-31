@@ -26,6 +26,7 @@ TerminalRenderer = (function() {
     this.charm = new Charm();
     this.charm.pipe(process.stdout);
     this.charm.reset();
+    this.charm.cursor(true);
   }
 
   TerminalRenderer.prototype.clear = function() {
@@ -80,8 +81,16 @@ TerminalRenderer = (function() {
   TerminalRenderer.prototype.drawMonsters = function() {};
 
   TerminalRenderer.prototype.drawStats = function() {
+    var locationString;
     this.charm.position(0, this.level.sizeY + 1);
-    return this.charm.write('Test');
+    this.charm.write("Dungeon Master III");
+    locationString = "Location: " + this.level.name;
+    this.charm.position(this.level.sizeX - locationString.length, this.level.sizeY + 1);
+    this.charm.foreground('white');
+    this.charm.write("Location: ");
+    this.charm.move(1);
+    this.charm.foreground('yellow');
+    return this.charm.write(this.level.name);
   };
 
   return TerminalRenderer;

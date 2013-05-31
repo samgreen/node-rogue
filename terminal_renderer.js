@@ -20,8 +20,9 @@ TILE_ATTR = ['reset', 'dim', 'bright', 'reset'];
 
 TerminalRenderer = (function() {
 
-  function TerminalRenderer(level) {
-    this.level = level;
+  function TerminalRenderer(game) {
+    this.game = game;
+    this.level = this.game.level;
     this.charm = new Charm();
     this.charm.pipe(process.stdout);
     this.charm.reset();
@@ -33,30 +34,50 @@ TerminalRenderer = (function() {
 
   TerminalRenderer.prototype.draw = function() {
     this.drawLevel();
+    this.drawHero();
     return this.drawStats();
   };
 
   TerminalRenderer.prototype.drawLevel = function() {
-    var tile, x, y, _i, _j, _ref, _ref1;
+    var _this = this;
     this.charm.push(true);
-    for (x = _i = 0, _ref = this.level.sizeX; 0 <= _ref ? _i < _ref : _i > _ref; x = 0 <= _ref ? ++_i : --_i) {
-      for (y = _j = 0, _ref1 = this.level.sizeY; 0 <= _ref1 ? _j < _ref1 : _j > _ref1; y = 0 <= _ref1 ? ++_j : --_j) {
-        tile = this.level.tileAt(x, y);
-        this.drawTile(tile, x, y, 'red');
-      }
-    }
+    this.level.forTiles(function(tile, x, y) {
+      return _this.drawTile(tile, x, y);
+    });
     return this.charm.pop(true);
   };
 
-  TerminalRenderer.prototype.drawTile = function(tileType, x, y, color) {
-    var tile;
-    this.charm.position(x + 1, y + 1);
+  TerminalRenderer.prototype.drawTile = function(tileType, x, y, foreColor, backColor) {
+    var bgColor, fgColor, tile;
     tile = TILE_CHAR[tileType];
-    this.charm.foreground(TILE_FG_COLORS[tileType]);
-    this.charm.background(TILE_BG_COLORS[tileType]);
+    if (!backColor) {
+      bgColor = TILE_BG_COLORS[tileType];
+    }
+    if (!foreColor) {
+      fgColor = TILE_FG_COLORS[tileType];
+    }
     this.charm.display(TILE_ATTR[tileType]);
-    return this.charm.write(tile);
+    return this.drawChar(tile, x, y, fgColor, bgColor);
   };
+
+  TerminalRenderer.prototype.drawChar = function(char, x, y, fgColor, bgColor) {
+    this.charm.position(x + 1, y + 1);
+    if (fgColor) {
+      this.charm.foreground(fgColor);
+    }
+    if (bgColor) {
+      this.charm.background(bgColor);
+    }
+    return this.charm.write(char);
+  };
+
+  TerminalRenderer.prototype.drawHero = function() {
+    var hero;
+    hero = this.game.hero;
+    return this.drawChar('@', hero.pos.x, hero.pos.y, 'red');
+  };
+
+  TerminalRenderer.prototype.drawMonsters = function() {};
 
   TerminalRenderer.prototype.drawStats = function() {
     this.charm.position(0, this.level.sizeY + 1);

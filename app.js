@@ -1,7 +1,7 @@
-var Level = require('./level');
-
-var firstLevel = new Level(80, 25);
-
+var Game = require('./Game');
 var TerminalRenderer = require('./terminal_renderer');
-var renderer = new TerminalRenderer(firstLevel);
+
+var newGame = new Game();
+
+var renderer = new TerminalRenderer(newGame);
 renderer.draw();

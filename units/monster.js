@@ -10,7 +10,7 @@ Monster = (function(_super) {
   __extends(Monster, _super);
 
   function Monster(hp, name, pos) {
-    this["super"](hp, name, pos);
+    Monster.__super__.constructor.call(this, hp, name, pos);
   }
 
   return Monster;

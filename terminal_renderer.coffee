@@ -35,7 +35,9 @@ TILE_ATTR = [
 ]
 
 class TerminalRenderer
-	constructor: (@level) ->
+	constructor: (@game) ->
+		@level = @game.level
+
 		@charm = new Charm()
 		@charm.pipe process.stdout
 		@charm.reset()
@@ -45,6 +47,7 @@ class TerminalRenderer
 
 	draw: ->
 		@drawLevel()
+		@drawHero()
 		@drawStats()
 
 	drawLevel: ->
@@ -52,26 +55,43 @@ class TerminalRenderer
 		@charm.push true
 
 		# Iterate over the whole level
-		for x in [0...@level.sizeX]
-			for y in [0...@level.sizeY]
-				tile = @level.tileAt x, y
-				@drawTile tile, x, y, 'red'
+		@level.forTiles (tile, x, y) =>
+			@drawTile tile, x, y
 
 		# Restore the state
 		@charm.pop true
 
-	drawTile: (tileType, x, y, color) ->
-		# Move the cursor
-		@charm.position x + 1, y + 1
-		# Get the character representing this type
+	drawTile: (tileType, x, y, foreColor, backColor) ->
 		tile = TILE_CHAR[tileType]
-		# Set the colors
-		@charm.foreground TILE_FG_COLORS[tileType]
-		@charm.background TILE_BG_COLORS[tileType]
+
+		bgColor = TILE_BG_COLORS[tileType] unless backColor
+		fgColor = TILE_FG_COLORS[tileType] unless foreColor
+
 		# Set the attribute
 		@charm.display TILE_ATTR[tileType]
+
+		# Draw the char
+		@drawChar tile, x, y, fgColor, bgColor
+
+	drawChar: (char, x, y, fgColor, bgColor) ->
+		# Move the cursor
+		@charm.position x + 1, y + 1
+
+		if fgColor
+			# Set the colors
+			@charm.foreground fgColor
+
+		if bgColor
+			@charm.background bgColor
+
 		# Write the character
-		@charm.write tile
+		@charm.write char		
+
+	drawHero: ->
+		hero = @game.hero
+		@drawChar '@', hero.pos.x, hero.pos.y, 'red'
+
+	drawMonsters: ->
 
 	drawStats: ->
 		# Save the current state

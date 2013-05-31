@@ -2,7 +2,7 @@ Monster = require './monster'
 
 class Rat extends Monster
 	constructor: (pos) ->
-		@super 5, "Rat", pos
+		super 5, "Rat", pos
 
 	randomAttackDamage: ->
 		# Rats attack for 1 - 5 health

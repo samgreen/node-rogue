@@ -10,7 +10,7 @@ Hero = (function(_super) {
   __extends(Hero, _super);
 
   function Hero(hp, name, pos) {
-    this["super"](hp, name, pos);
+    Hero.__super__.constructor.call(this, hp, name, pos);
   }
 
   return Hero;

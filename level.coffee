@@ -17,16 +17,18 @@ class Level
 		console.log "Creating Level #{@sizeX}x#{@sizeY}"
 
 		@map = {}
-		for y in [0...@sizeY]
-			for x in [0...@sizeX]
-				# Enclose the edges of the dungeon
-				if x == 0 or x == @sizeX - 1 or y == 0 or y == @sizeY - 1
-					@setTile x, y, TILE_TYPE.WALL
-				else
-					@setTile x, y, TILE_TYPE.INVALID
+		@forTiles (tile, x, y) =>
+			# Enclose the edges of the dungeon
+			if x == 0 or x == @sizeX - 1 or y == 0 or y == @sizeY - 1
+				@setTile x, y, TILE_TYPE.WALL
+			else
+				@setTile x, y, TILE_TYPE.INVALID
 
 		# Generate all rooms
 		@generateRooms()
+
+		# Generate tunnels
+		@generateTunnels()
 
 	generateRooms: ->
 		numRooms = Math.random() * 5 + 5
@@ -89,6 +91,51 @@ class Level
 		return valid
 
 	generateTunnels: ->
+		# Start by connecting all doors
+		@forTilesType TILE_TYPE.DOOR, (tile, x, y) =>
+			# Get the four neighbors to this tile
+			neighbors = @getNeighbors x, y
+
+			# Find the invalid tile
+			if neighbors.left == TILE_TYPE.INVALID
+				# Create a path moving left
+				for tileX in [x - 1..0]
+					if @isTileInvalid tileX, y
+						# @setTile tileX, y - 1, TILE_TYPE.WALL
+						@setTile tileX, y, TILE_TYPE.FLOOR
+						# @setTile tileX, y + 1, TILE_TYPE.WALL
+					else
+						@setTile tileX, y, TILE_TYPE.FLOOR
+						break
+			else if neighbors.right == TILE_TYPE.INVALID
+				# Create a path moving right
+				for tileX in [x + 1...@sizeX]
+					if @isTileInvalid tileX, y
+						# @setTile tileX, y - 1, TILE_TYPE.WALL
+						@setTile tileX, y, TILE_TYPE.FLOOR
+						# @setTile tileX, y + 1, TILE_TYPE.WALL
+					else
+						@setTile tileX, y, TILE_TYPE.FLOOR
+						break
+			else if neighbors.up == TILE_TYPE.INVALID
+				# Create a path moving up
+				for tileY in [y - 1..0]
+					if @isTileInvalid x, tileY
+						# @setTile x - 1, tileY, TILE_TYPE.WALL
+						@setTile x, tileY, TILE_TYPE.FLOOR
+						# @setTile x + 1, tileY, TILE_TYPE.WALL
+					else 
+						break
+			else if neighbors.down == TILE_TYPE.INVALID
+				# Create a path moving down
+				for tileY in [y + 1...@sizeY]
+					if @isTileInvalid x, tileY
+						# @setTile x - 1, tileY, TILE_TYPE.WALL
+						@setTile x, tileY, TILE_TYPE.FLOOR
+						# @setTile x + 1, tileY, TILE_TYPE.WALL
+					else 
+						break
+
 
 	makeTileKey: (x, y) ->
 		return "#{x},#{y}"
@@ -116,6 +163,13 @@ class Level
 	isTileInRoom: (x, y) ->
 		return @isTileFloor x, y or @isTileWall x, y
 
+	getNeighbors: (x, y) ->
+		neighbors =
+			left: 	@tileAt x - 1, y
+			up: 	@tileAt x, y - 1
+			right:	@tileAt x + 1, y
+			down:	@tileAt x, y - 1
+
 	getRandomSpawnPos: ->
 		tile = @getRandomTile()
 		while tile != TILE_TYPE.FLOOR
@@ -136,6 +190,20 @@ class Level
 
 	addMonster: (monster) ->
 		monsters.push monster
+
+	# Map iterator utilities
+	forTiles: (iterator) ->
+		for y in [0...@sizeY]
+			for x in [0...@sizeX]
+				# Get the tile
+				tile = @tileAt x, y
+				# Call our iterator function with the tile
+				iterator tile, x, y
+
+	forTilesType: (tileType, iterator) ->
+		@forTiles (tile, x, y) ->
+			if tile == tileType
+				iterator tile, x, y
 
 	toString: ->
 		description = ''

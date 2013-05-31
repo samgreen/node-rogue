@@ -15,19 +15,19 @@ Game = (function() {
   }
 
   Game.prototype.setupLevel = function() {
-    var sizeX, sizeY;
-    sizeX = Math.random() * 40 + 40;
-    sizeY = Math.random() * 10 + 10;
-    this.level = new Level(sizeX, sizeY);
+    this.level = new Level(100, 25);
     if (DEBUG) {
       return console.log(this.level.toString());
     }
   };
 
   Game.prototype.addHero = function() {
-    var hero, heroPos;
+    var heroPos;
     heroPos = this.level.getRandomSpawnPos();
-    hero = new Hero(15, "Hero", heroPos);
+    this.hero = new Hero(15, "Hero", {
+      x: 15,
+      y: 20
+    });
     return this.level.addHero(this.hero);
   };
 

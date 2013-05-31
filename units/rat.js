@@ -10,7 +10,7 @@ Rat = (function(_super) {
   __extends(Rat, _super);
 
   function Rat(pos) {
-    this["super"](5, "Rat", pos);
+    Rat.__super__.constructor.call(this, 5, "Rat", pos);
   }
 
   Rat.prototype.randomAttackDamage = function() {
